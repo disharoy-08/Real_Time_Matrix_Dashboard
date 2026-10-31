@@ -102,6 +102,12 @@ SpectraPulse enforces security strictly on the server (JWT verification & middle
 | **Operator** | ✅ Read-only Live Stream | ✅ Bounded Historical Queries | ✅ Trigger Spikes / Load Tests | ❌ Blocked |
 | **Admin** | ✅ Full Access | ✅ Full Access | ✅ Full Access | ✅ User / Policy Management |
 
+### Seeded Demo Accounts (1-Click Switcher)
+The frontend includes a 1-click modal switcher and JWT login with pre-configured accounts:
+- **Viewer**: `viewer@spectrapulse.io` / `viewer123` (Read-only observation)
+- **Operator**: `operator@spectrapulse.io` / `operator123` (Operational & chaos burst permissions)
+- **Admin**: `admin@spectrapulse.io` / `admin123` (Full root cluster privileges)
+
 ---
 
 ## 📊 "Zero Packet Drops" Verification & Benchmark
@@ -152,24 +158,26 @@ Real_Time_Matrix_Dashboard/
 │   └── Dockerfile
 ├── frontend/
 │   ├── app/
-│   │   ├── layout.tsx                  # Root layout, ThemeProvider, ToastProvider
-│   │   ├── page.tsx                    # Main 3-pane Telemetry Dashboard
-│   │   └── globals.css                 # Custom design tokens, glassmorphism, animations
+│   │   ├── layout.tsx                  # Root layout with dark telemetry aesthetic & metadata
+│   │   ├── page.tsx                    # 3-Pane Observability Console (Activity Bar, Drawer, Canvas)
+│   │   └── globals.css                 # Custom scrollbar, animations, & theme tokens
 │   ├── components/
-│   │   ├── ActivityBar.tsx             # Left navigation icon bar with mode/theme toggle
-│   │   ├── ServiceDrawer.tsx           # Mid-panel service selection, filters, and chaos trigger
-│   │   ├── TelemetryCanvas.tsx         # Center charts, KPI metric cards, and packet inspector
-│   │   ├── ClusterInspector.tsx        # Right drawer node diagnostics & Redis/DB meters
-│   │   ├── MetricsChart.tsx            # Recharts real-time multi-series chart
-│   │   └── RoleGate.tsx                # Client-side RBAC visual guard
+│   │   ├── DashboardHeader.tsx         # Distributed hub telemetry status & RBAC switcher trigger
+│   │   ├── ConnectionStatus.tsx        # Live stream badge, Node ID, Ingestion rate (ev/s), Zero-Drop SLA
+│   │   ├── ServiceFilter.tsx           # Multi-cluster filter (api-gateway, auth-service, payment-service, order-worker)
+│   │   ├── TimeRangeFilter.tsx         # Rolling time windows (30s, 1m, 5m, 15m), metric filters & Live/Pause
+│   │   ├── MetricCard.tsx              # KPI telemetry cards with delta arrows, min/avg/max & status badges
+│   │   ├── MetricsChart.tsx            # Multi-cluster Recharts time-series graphs with gradient fills
+│   │   ├── ZeroDropInspector.tsx       # Monotonic sequence validator & historical gap recovery monitor
+│   │   ├── ChaosControls.tsx           # Role-gated chaos burst injector (Operator & Admin only)
+│   │   └── RoleAuthModal.tsx           # 1-Click instant demo RBAC switcher (Viewer, Operator, Admin)
 │   ├── hooks/
-│   │   ├── useMetricsSocket.ts         # Resilient WebSocket hook with exponential backoff & auto-gap fetch
-│   │   └── useTelemetryStore.ts        # Bounded sliding window state management
+│   │   └── useMetricsSocket.ts         # Resilient WebSocket hook with backoff reconnect & gap recovery
 │   ├── services/
-│   │   └── api.ts                      # REST API client for history & authentication
+│   │   └── metricsApi.ts               # REST API client for health, latest, history, login, & chaos
 │   ├── types/
-│   │   └── telemetry.ts                # TypeScript interfaces matching backend models
-│   ├── tailwind.config.ts
+│   │   └── metrics.ts                  # TypeScript interfaces for events, roles, and packet drop stats
+│   ├── Dockerfile                      # Multi-stage production container build
 │   └── package.json
 ├── docker-compose.yml                  # Complete multi-service stack (2 Go nodes, Redis, Postgres, Frontend)
 ├── .env.example
@@ -193,9 +201,9 @@ docker-compose up --build
 This boots up:
 - `postgres`: PostgreSQL 16 on `:5432` with pre-applied migrations
 - `redis`: Redis 7.2 on `:6379`
-- `backend-a`: Go Telemetry Instance A on `:8081`
-- `backend-b`: Go Telemetry Instance B on `:8082`
-- `frontend`: Next.js 14 Dashboard on `http://localhost:3000`
+- `backend-node-a`: Go Telemetry Instance A on `:8081`
+- `backend-node-b`: Go Telemetry Instance B on `:8082`
+- `frontend`: Next.js 16 Dashboard on `http://localhost:3000`
 
 ### Option 2: Running Manually for Development
 
